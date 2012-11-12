@@ -1,0 +1,81 @@
+diff -Narup xterm-283.orig/util.c xterm-283/util.c
+--- xterm-283.orig/util.c	2012-10-17 09:46:46.066730134 +0900
++++ xterm-283/util.c	2012-10-17 09:47:51.898596128 +0900
+@@ -4323,67 +4323,6 @@ decode_keyboard_type(XtermWidget xw, XTE
+ }
+ 
+ #if OPT_WIDE_CHARS
+-#if defined(HAVE_WCHAR_H) && defined(HAVE_WCWIDTH)
+-/*
+- * If xterm is running in a UTF-8 locale, it is still possible to encounter
+- * old runtime configurations which yield incomplete or inaccurate data.
+- */
+-static Bool
+-systemWcwidthOk(int samplesize, int samplepass)
+-{
+-    wchar_t n;
+-    int oops = 0;
+-
+-    for (n = 21; n <= 25; ++n) {
+-	wchar_t code = (wchar_t) dec2ucs((unsigned) n);
+-	int system_code = wcwidth(code);
+-	int intern_code = mk_wcwidth(code);
+-
+-	/*
+-	 * Solaris 10 wcwidth() returns "2" for all of the line-drawing (page
+-	 * 0x2500) and most of the geometric shapes (a few are excluded, just
+-	 * to make it more difficult to use).  Do a sanity check to avoid using
+-	 * it.
+-	 */
+-	if ((system_code < 0 && intern_code >= 1)
+-	    || (system_code >= 0 && intern_code != system_code)) {
+-	    TRACE(("systemWcwidthOk: broken system line-drawing wcwidth\n"));
+-	    oops += (samplepass + 1);
+-	    break;
+-	}
+-    }
+-
+-    for (n = 0; n < (wchar_t) samplesize; ++n) {
+-	int system_code = wcwidth(n);
+-	int intern_code = mk_wcwidth(n);
+-
+-	/*
+-	 * Since mk_wcwidth() is designed to check for nonspacing characters,
+-	 * and has rough range-checks for double-width characters, it will
+-	 * generally not detect cases where a code has not been assigned.
+-	 *
+-	 * Some experimentation with GNU libc suggests that up to 1/4 of the
+-	 * codes would differ, simply because the runtime library would have a
+-	 * table listing the unassigned codes, and return -1 for those.  If
+-	 * mk_wcwidth() has no information about a code, it returns 1.  On the
+-	 * other hand, if the runtime returns a positive number, the two should
+-	 * agree.
+-	 *
+-	 * The "up to" is measured for 4k, 8k, 16k of data.  With only 1k, the
+-	 * number of differences was only 77.  However, that is only one
+-	 * system, and this is only a sanity check to avoid using broken
+-	 * libraries.
+-	 */
+-	if ((system_code < 0 && intern_code >= 1)
+-	    || (system_code >= 0 && intern_code != system_code)) {
+-	    ++oops;
+-	}
+-    }
+-    TRACE(("systemWcwidthOk: %d/%d mismatches, allowed %d\n",
+-	   oops, samplesize, samplepass));
+-    return (oops <= samplepass);
+-}
+-#endif /* HAVE_WCWIDTH */
+ 
+ void
+ decode_wcwidth(XtermWidget xw)
+@@ -4395,8 +4334,7 @@ decode_wcwidth(XtermWidget xw)
+     switch (mode) {
+     default:
+ #if defined(HAVE_WCHAR_H) && defined(HAVE_WCWIDTH)
+-	if (xtermEnvUTF8() &&
+-	    systemWcwidthOk(xw->misc.mk_samplesize, xw->misc.mk_samplepass)) {
++	if (xtermEnvUTF8()) {
+ 	    my_wcwidth = wcwidth;
+ 	    TRACE(("using system wcwidth() function\n"));
+ 	    break;

@@ -1,0 +1,74 @@
+# Maintainer: Lukas Jirkovsky <l.jirkovsky@gmail.com>
+pkgname=fuppes
+pkgver='0.660'
+pkgrel=1
+pkgdesc="A free, multiplatform Universal Plug and Play (UPnP) A/V MediaServer"
+arch=('i686' 'x86_64')
+url="http://fuppes.ulrich-voelkel.de/"
+license=('GPL2')
+backup=('var/lib/fuppes/fuppes.cfg')
+depends=('libxml2' 'pcre' 'sqlite')
+optdepends=('libvorbis: OGG Vorbis decoding' \
+            'libmpcdec: MPC decoding' 'flac: FLAC decoding' \
+            'imagemagick: image transcoding' \
+            'taglib: audio metadata' 'libmp4v2: audio metadata' \
+            'exiv2: EXIF support' \
+            'ffmpeg: video metadata' \
+            'mysql: mysql database' \
+            'curl: blip.tv')
+
+makedepends=('subversion' \
+             'libvorbis' 'libmpcdec' 'flac' 'faad2' 'libmad' \
+             'imagemagick' \
+             'taglib' 'libmp4v2' \
+             'exiv2' \
+             'ffmpeg' \
+             'mysql')
+
+source=("http://tenet.dl.sourceforge.net/project/fuppes/fuppes/SVN-660/fuppes-${pkgver}.tar.gz"
+        fix_codec_type.diff
+        fix_includes.diff
+        fix_namespace.diff
+        fix_regexp_crash.diff)
+
+
+md5sums=('fc97f8eb84e5692d582c1224eff429d6'
+        'b1334eb9c517b910e16445e6c7286613'
+        '9d9fc6e36cd9b12252db27b703868567'
+        'a46d152bff20dcab3f304507beb40b94'
+        '67a7059bcf61d01bf8ac8f3b4429bd53')
+
+build()
+{
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  patch -p1 -i "${srcdir}/fix_codec_type.diff"
+  patch -p1 -i "${srcdir}/fix_includes.diff"
+  patch -p1 -i "${srcdir}/fix_namespace.diff"
+  patch -Np0 -i "${srcdir}/fix_regexp_crash.diff"
+
+  autoreconf -vfi
+  ./configure --sysconfdir=/etc \
+  --localstatedir=/var \
+  --prefix=/usr \
+  --disable-rpath \
+  --enable-magickwand \
+  --enable-mp4v2 \
+  --enable-lame \
+  --enable-twolame \
+  --enable-vorbis \
+  --enable-tremor \
+  --enable-musepack \
+  --enable-flac \
+  --enable-mad \
+  --enable-faad \
+  --enable-dlna \
+  --enable-inotify
+
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

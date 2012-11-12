@@ -1,0 +1,12 @@
+diff -Narup fuppes-0.660.orig/src/plugins/metadata_ffmpegthumbnailer.cpp fuppes-0.660/src/plugins/metadata_ffmpegthumbnailer.cpp
+--- fuppes-0.660.orig/src/plugins/metadata_ffmpegthumbnailer.cpp	2012-11-11 23:33:43.628803281 +0900
++++ fuppes-0.660/src/plugins/metadata_ffmpegthumbnailer.cpp	2012-11-12 18:20:32.827588212 +0900
+@@ -40,7 +40,7 @@ int read_image(const char* fileName, cha
+ 	std::vector<uint8_t>	data;
+ 
+ 	try {
+-		VideoThumbnailer thumbnailer(160, false, true, 8, true);	
++		ffmpegthumbnailer::VideoThumbnailer thumbnailer(160, false, true, 8, true);	
+ 		//thumbnailer.setSeekPercentage(44);
+ 		thumbnailer.generateThumbnail(fileName, Jpeg, data);
+ 	}
