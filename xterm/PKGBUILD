@@ -3,19 +3,19 @@
 # Contributor: Alexander Baldeck <alexander@archlinux.org>
 
 pkgname=xterm
-pkgver=286
+pkgver=288
 pkgrel=1
 pkgdesc="X Terminal Emulator"
 arch=('i686' 'x86_64')
 url="http://invisible-island.net/xterm/"
 license=('custom')
-depends=('libxft' 'libxaw' 'ncurses' 'xorg-luit' 'xbitmaps')
+depends=('libxft' 'libxaw' 'ncurses' 'xorg-luit' 'xbitmaps' 'libutempter')
 source=(ftp://invisible-island.net/${pkgname}/${pkgname}-${pkgver}.tgz
         LICENSE
         locale.patch)
-md5sums=('a72ac3809b3338899d97c17e13a9102a'
-        '10ecc3f8ee91e3189863a172f68282d2'
-        'a1033ff69b1f9510aa999dd4b1212c37')
+md5sums=('b9bef1abf6e397be6fa2e5f534964d17'
+         '10ecc3f8ee91e3189863a172f68282d2'
+         'a1033ff69b1f9510aa999dd4b1212c37')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
@@ -46,7 +46,7 @@ build() {
       --enable-narrowproto \
       --enable-exec-xterm \
       --with-tty-group=tty \
-      --with-utmp-setgid=utmp
+      --with-utempter
   make
 }
 

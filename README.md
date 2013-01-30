@@ -1,10 +1,15 @@
 このPKGBUILDの使い方
 =======
+このgitのクローンをまず作ってから
 
     % git clone https://github.com/silenvx/PKGBUILD.git
 
-後はコンパイルしたいディレクトリに移動して
+コンパイルしたいディレクトリにこのように移動して
+
+    % cd PKGBUILD/fuppes
+
+コンパイルと同時にpacmanでインストールを行います
 
     % makepkg -i
 
-これだけでインストールが可能です
+これだけで導入までが可能です
