@@ -3,7 +3,7 @@
 # Contributor: Alexander Baldeck <alexander@archlinux.org>
 
 pkgname=xterm
-pkgver=288
+pkgver=291
 pkgrel=1
 pkgdesc="X Terminal Emulator"
 arch=('i686' 'x86_64')
@@ -13,9 +13,9 @@ depends=('libxft' 'libxaw' 'ncurses' 'xorg-luit' 'xbitmaps' 'libutempter')
 source=(ftp://invisible-island.net/${pkgname}/${pkgname}-${pkgver}.tgz
         LICENSE
         locale.patch)
-md5sums=('b9bef1abf6e397be6fa2e5f534964d17'
+md5sums=('9925cd564c84746442e640f0e32f0493'
          '10ecc3f8ee91e3189863a172f68282d2'
-         'a1033ff69b1f9510aa999dd4b1212c37')
+         '4ebbc778e3a249d7ee0e54fff3e0f846')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"

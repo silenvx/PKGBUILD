@@ -10,6 +10,7 @@
 !/sonydb
 !/tmux
 !/xterm
+!/rtmpdump
 
 /*/src/*
 /*/pkg/*
