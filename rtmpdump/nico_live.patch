@@ -1,0 +1,214 @@
+# https://github.com/taonico/rtmpdump-nico-live
+diff -Narup rtmpdump-20121203.orig/librtmp/rtmp.c rtmpdump-20121203/librtmp/rtmp.c
+--- rtmpdump-20121203.orig/librtmp/rtmp.c	2012-11-10 00:58:08.000000000 +0900
++++ rtmpdump-20121203/librtmp/rtmp.c	2013-03-19 01:11:15.194749353 +0900
+@@ -444,13 +444,19 @@ RTMP_SetupStream(RTMP *r,
+ 		 AVal *subscribepath,
+ 		 AVal *usherToken,
+ 		 int dStart,
+-		 int dStop, int bLiveStream, long int timeout)
++		 int dStop, int bLiveStream, long int timeout,
++		 AVal *nlplaypath,
++		 AVal *nltoken,
++		 AVal *nlid)
+ {
++  RTMP_LogPrintf("Protocol : %s", RTMPProtocolStrings[protocol&7]);
+   RTMP_Log(RTMP_LOGDEBUG, "Protocol : %s", RTMPProtocolStrings[protocol&7]);
+   RTMP_Log(RTMP_LOGDEBUG, "Hostname : %.*s", host->av_len, host->av_val);
+   RTMP_Log(RTMP_LOGDEBUG, "Port     : %d", port);
+   RTMP_Log(RTMP_LOGDEBUG, "Playpath : %s", playpath->av_val);
+ 
++  if (nlplaypath && nlplaypath->av_val)
++    RTMP_Log(RTMP_LOGDEBUG, "nlplaypath : %s", nlplaypath->av_val);
+   if (tcUrl && tcUrl->av_val)
+     RTMP_Log(RTMP_LOGDEBUG, "tcUrl    : %s", tcUrl->av_val);
+   if (swfUrl && swfUrl->av_val)
+@@ -474,6 +480,8 @@ RTMP_SetupStream(RTMP *r,
+ 
+   RTMP_Log(RTMP_LOGDEBUG, "live     : %s", bLiveStream ? "yes" : "no");
+   RTMP_Log(RTMP_LOGDEBUG, "timeout  : %ld sec", timeout);
++  RTMP_Log(RTMP_LOGDEBUG, "nltoken    : %s", nltoken->av_val);
++  RTMP_Log(RTMP_LOGDEBUG, "nlid       : %s", nlid->av_val);
+ 
+ #ifdef CRYPTO
+   if (swfSHA256Hash != NULL && swfSize > 0)
+@@ -511,6 +519,12 @@ RTMP_SetupStream(RTMP *r,
+     r->Link.flashVer = RTMP_DefaultFlashVer;
+   if (subscribepath && subscribepath->av_len)
+     r->Link.subscribepath = *subscribepath;
++  if (nlplaypath && nlplaypath->av_len)
++    r->Link.nlplaypath = *nlplaypath;
++  if (nltoken && nltoken->av_len)
++    r->Link.nltoken = *nltoken;
++  if (nlid && nlid->av_len)
++    r->Link.nlid = *nlid;
+   if (usherToken && usherToken->av_len)
+     r->Link.usherToken = *usherToken;
+   r->Link.seekTime = dStart;
+@@ -1741,6 +1755,38 @@ RTMP_SendCreateStream(RTMP *r)
+   return RTMP_SendPacket(r, &packet, TRUE);
+ }
+ 
++SAVC(nlPlayNotice);
++
++int
++RTMP_SendNlplayNotice(RTMP *r, AVal *nlplaypath, AVal *nltoken, AVal *nlid)
++{
++  RTMPPacket packet;
++  char pbuf[256], *pend = pbuf + sizeof(pbuf);
++  char *enc;
++
++  packet.m_nChannel = 0x03;  /* control channel (invoke) */
++  packet.m_headerType = RTMP_PACKET_SIZE_MEDIUM;
++  packet.m_packetType = RTMP_PACKET_TYPE_INVOKE;
++  packet.m_nTimeStamp = 0;
++  packet.m_nInfoField2 = 0;
++  packet.m_hasAbsTimestamp = 0;
++  packet.m_body = pbuf + RTMP_MAX_HEADER_SIZE;
++
++  enc = packet.m_body;
++  enc = AMF_EncodeString(enc, pend, &av_nlPlayNotice);
++  enc = AMF_EncodeNumber(enc, pend, ++r->m_numInvokes);
++  *enc++ = AMF_NULL;    /* NULL */
++
++  enc = AMF_EncodeString(enc, pend, nlplaypath);
++  enc = AMF_EncodeString(enc, pend, nltoken);
++  enc = AMF_EncodeString(enc, pend, nlid);
++  packet.m_nBodySize = enc - packet.m_body;
++
++  r->Link.playpath = *nlid;
++
++  return RTMP_SendPacket(r, &packet, TRUE);
++}
++
+ SAVC(FCSubscribe);
+ 
+ static int
+@@ -2966,6 +3012,7 @@ HandleInvoke(RTMP *r, const char *body,
+ 	    }
+ 	  if (r->Link.protocol & RTMP_FEATURE_WRITE)
+ 	    {
++	      RTMP_Log(RTMP_LOGDEBUG, "Link.protocol %d", r->Link.protocol);
+ 	      SendReleaseStream(r);
+ 	      SendFCPublish(r);
+ 	    }
+@@ -2985,7 +3032,12 @@ HandleInvoke(RTMP *r, const char *body,
+ 	      if (r->Link.subscribepath.av_len)
+ 	        SendFCSubscribe(r, &r->Link.subscribepath);
+ 	      else if (r->Link.lFlags & RTMP_LF_LIVE)
+-	        SendFCSubscribe(r, &r->Link.playpath);
++	        {
++	          if (r->Link.nlplaypath.av_len != 0)
++	            RTMP_SendNlplayNotice(r, &r->Link.nlplaypath, &r->Link.nltoken, &r->Link.nlid);
++	          else
++	            SendFCSubscribe(r, &r->Link.playpath);
++	        }
+ 	    }
+ 	}
+       else if (AVMATCH(&methodInvoked, &av_createStream))
+diff -Narup rtmpdump-20121203.orig/librtmp/rtmp.h rtmpdump-20121203/librtmp/rtmp.h
+--- rtmpdump-20121203.orig/librtmp/rtmp.h	2012-11-10 00:58:08.000000000 +0900
++++ rtmpdump-20121203/librtmp/rtmp.h	2013-03-19 01:14:04.011465136 +0900
+@@ -159,6 +159,9 @@ extern "C"
+     AVal token;
+     AVal pubUser;
+     AVal pubPasswd;
++    AVal nlplaypath;
++    AVal nltoken;
++    AVal nlid;
+     AMFObject extras;
+     int edepth;
+ 
+@@ -311,7 +314,10 @@ extern "C"
+ 			AVal *subscribepath,
+ 			AVal *usherToken,
+ 			int dStart,
+-			int dStop, int bLiveStream, long int timeout);
++			int dStop, int bLiveStream, long int timeout,
++			AVal *nlplaypath,
++			AVal *nltoken,
++			AVal *nlid);
+ 
+   int RTMP_Connect(RTMP *r, RTMPPacket *cp);
+   struct sockaddr;
+diff -Narup rtmpdump-20121203.orig/rtmpdump.c rtmpdump-20121203/rtmpdump.c
+--- rtmpdump-20121203.orig/rtmpdump.c	2012-11-10 00:58:08.000000000 +0900
++++ rtmpdump-20121203/rtmpdump.c	2013-03-19 01:44:27.898812634 +0900
+@@ -774,6 +774,9 @@ main(int argc, char **argv)
+   uint32_t swfSize = 0;
+   AVal flashVer = { 0, 0 };
+   AVal sockshost = { 0, 0 };
++  AVal nlplaypath = { 0, 0 };
++  AVal nltoken = { 0, 0 };
++  AVal nlid = { 0, 0 };
+ 
+ #ifdef CRYPTO
+   int swfAge = 30;	/* 30 days for SWF cache by default */
+@@ -858,12 +861,13 @@ main(int argc, char **argv)
+     {"quiet", 0, NULL, 'q'},
+     {"verbose", 0, NULL, 'V'},
+     {"jtv", 1, NULL, 'j'},
++    {"nlplaypath", 1, NULL, 'N'},
+     {0, 0, 0, 0}
+   };
+ 
+   while ((opt =
+ 	  getopt_long(argc, argv,
+-		      "hVveqzRr:s:t:i:p:a:b:f:o:u:C:n:c:l:y:Ym:k:d:A:B:T:w:x:W:X:S:#j:",
++		      "hVveqzRr:s:t:i:p:a:b:f:o:u:C:n:c:l:y:Ym:k:d:A:B:T:w:x:W:X:S:#j:N:",
+ 		      longopts, NULL)) != -1)
+     {
+       switch (opt)
+@@ -1069,6 +1073,7 @@ main(int argc, char **argv)
+ 	  break;
+ 	case 'V':
+ 	  RTMP_debuglevel = RTMP_LOGDEBUG;
++	  RTMP_LogPrintf("change level %d\n", RTMP_debuglevel);
+ 	  break;
+ 	case 'z':
+ 	  RTMP_debuglevel = RTMP_LOGALL;
+@@ -1079,6 +1084,17 @@ main(int argc, char **argv)
+ 	case 'j':
+ 	  STR2AVAL(usherToken, optarg);
+ 	  break;
++	  case 'N':
++	  {
++	    char *tmp_nltoken;
++	    char *tmp_nlid[255];
++	    STR2AVAL(nlplaypath, strtok(optarg,","));
++	    tmp_nltoken = strtok(NULL, ",");
++	    STR2AVAL(nltoken   , tmp_nltoken);
++	    strcpy((char*)tmp_nlid, tmp_nltoken);
++	    STR2AVAL(nlid      , strtok((char*)tmp_nlid,"?"));
++	  }
++	  break;
+ 	default:
+ 	  RTMP_LogPrintf("unknown option: %c\n", opt);
+ 	  usage(argv[0]);
+@@ -1198,7 +1214,8 @@ main(int argc, char **argv)
+     {
+       RTMP_SetupStream(&rtmp, protocol, &hostname, port, &sockshost, &playpath,
+ 		       &tcUrl, &swfUrl, &pageUrl, &app, &auth, &swfHash, swfSize,
+-		       &flashVer, &subscribepath, &usherToken, dSeek, dStopOffset, bLiveStream, timeout);
++		       &flashVer, &subscribepath, &usherToken, dSeek, dStopOffset, bLiveStream, timeout,
++		       &nlplaypath, &nltoken, &nlid);
+     }
+   else
+     {
+diff -Narup rtmpdump-20121203.orig/rtmpgw.c rtmpdump-20121203/rtmpgw.c
+--- rtmpdump-20121203.orig/rtmpgw.c	2012-11-10 00:58:08.000000000 +0900
++++ rtmpdump-20121203/rtmpgw.c	2013-03-19 01:56:36.297810500 +0900
+@@ -553,11 +553,12 @@ void processTCPrequest(STREAMING_SERVER
+   RTMP_Log(RTMP_LOGDEBUG, "Setting buffer time to: %dms", req.bufferTime);
+   RTMP_Init(&rtmp);
+   RTMP_SetBufferMS(&rtmp, req.bufferTime);
++  AVal a, b, c;
+   if (!req.fullUrl.av_len)
+     {
+       RTMP_SetupStream(&rtmp, req.protocol, &req.hostname, req.rtmpport, &req.sockshost,
+ 		       &req.playpath, &req.tcUrl, &req.swfUrl, &req.pageUrl, &req.app, &req.auth, &req.swfHash, req.swfSize, &req.flashVer, &req.subscribepath, &req.usherToken, dSeek, req.dStopOffset,
+-		       req.bLiveStream, req.timeout);
++		       req.bLiveStream, req.timeout, &a, &b, &c);
+     }
+   else
+     {
