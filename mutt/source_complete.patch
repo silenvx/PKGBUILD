@@ -1,0 +1,116 @@
+diff -Narup mutt-1.5.21.orig/init.c mutt-1.5.21/init.c
+--- mutt-1.5.21.orig/init.c	2010-08-26 01:31:40.000000000 +0900
++++ mutt-1.5.21/init.c	2013-04-03 04:10:37.500636414 +0900
+@@ -52,6 +52,8 @@
+ #include <sys/wait.h>
+ #include <sys/time.h>
+ 
++#include <dirent.h>
++
+ #define CHECK_PAGER \
+   if ((CurrentMenu == MENU_PAGER) && (idx >= 0) &&	\
+ 	    (MuttVars[idx].flags & R_RESORT)) \
+@@ -2427,6 +2429,7 @@ static void candidate (char *dest, char
+   }
+ }
+ 
++static char *fpath;
+ int mutt_command_complete (char *buffer, size_t len, int pos, int numtabs)
+ {
+   char *pt = buffer;
+@@ -2578,6 +2581,87 @@ int mutt_command_complete (char *buffer,
+ 
+     strncpy (pt, Completed, buffer + len - pt - spaces);
+   }
++  else if (!mutt_strncmp (buffer, "source", 6))
++  {
++      pt++;
++
++      if (numtabs == 1)
++      {
++          Num_matched = 0;
++          strfcpy (User_typed, pt, sizeof (User_typed));
++          memset (Matches, 0, Matches_listsize);
++          memset (Completed, 0, sizeof (Completed));
++
++          DIR *dir;
++          struct dirent *dp;
++          char dpath[LONG_STRING]={0};
++          if(User_typed[0]!=0){
++              if(User_typed[0]=='~'){
++                  snprintf(dpath, sizeof(dpath),"%s%s",getenv("HOME"),(User_typed+1));
++              }else{
++                  snprintf(dpath, sizeof(dpath),"%s",User_typed);
++              }
++              for(num=0;dpath[num]!=0 && num<sizeof(dpath);num++);
++              if(num>1 && dpath[num-1]=='/')
++                  dpath[num-1]=0;
++
++              strfcpy (User_typed, dpath, sizeof (User_typed));
++
++              if((dir=opendir(dpath))==NULL){
++                  for(num=sizeof(dpath);dpath[num]!='/' && num>0;num--);
++                  if(num>0)
++                      dpath[num]=0;
++                  else if(num==0)
++                      goto mutt_command_complete_current;
++                  if((dir=opendir(dpath))==NULL)
++                      return 1;
++              }
++              if(dpath[0]=='/' && dpath[1]==0)
++                  dpath[0]=0;
++              num=0;
++              while((dp=readdir(dir))!=NULL){
++                  if(dp->d_name[0]=='.' && (dp->d_name[1]==0 || (dp->d_name[1]=='.' && dp->d_name[2]==0)))
++                      continue;
++                  safe_realloc (&fpath, ++num * LONG_STRING * sizeof (char *));
++                  snprintf(&fpath[(num-1)*LONG_STRING],LONG_STRING,"%s/%s",dpath,dp->d_name);
++              }
++              while(--num >= 0)
++                  candidate (Completed, User_typed, &fpath[num*LONG_STRING], sizeof (Completed));
++          }else{
++mutt_command_complete_current:
++              if((dir=opendir("."))==NULL)
++                  return 1;
++              while((dp=readdir(dir))!=NULL){
++                  if(dp->d_name[0]=='.' && (dp->d_name[1]==0 || (dp->d_name[1]=='.' && dp->d_name[2]==0)))
++                      continue;
++                  candidate (Completed, User_typed, dp->d_name, sizeof (Completed));
++              }
++          }
++
++          closedir(dir);
++
++          matches_ensure_morespace (Num_matched);
++          Matches[Num_matched++] = User_typed;
++
++          /* All matches are stored. Longest non-ambiguous string is ""
++           * i.e. dont change 'buffer'. Fake successful return this time */
++          if (User_typed[0] == 0)
++              return 1;
++      }
++      if (Completed[0] == 0 && User_typed[0])
++          return 0;
++
++      /* Num_matched will _always_ be atleast 1 since the initial
++       * user-typed string is always stored */
++      if (numtabs == 1 && Num_matched == 2)
++          snprintf(Completed, sizeof(Completed),"%s", Matches[0]);
++      else if (numtabs > 1 && Num_matched > 2)
++          /* cycle thru all the matches */
++          snprintf(Completed, sizeof(Completed), "%s", 
++                  Matches[(numtabs - 2) % Num_matched]);
++
++      strncpy (pt, Completed, buffer + len - pt - spaces);
++  }
+   else
+     return 0;
+ 
+@@ -3022,6 +3106,7 @@ void mutt_init (int skip_sys_rc, LIST *c
+   mutt_set_charset (Charset);
+   
+   Matches = safe_calloc (Matches_listsize, sizeof (char *));
++  fpath = safe_calloc (LONG_STRING , sizeof (char *));
+   
+   /* Set standard defaults */
+   for (i = 0; MuttVars[i].option; i++)
