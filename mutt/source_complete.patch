@@ -1,6 +1,6 @@
 diff -Narup mutt-1.5.21.orig/init.c mutt-1.5.21/init.c
 --- mutt-1.5.21.orig/init.c	2010-08-26 01:31:40.000000000 +0900
-+++ mutt-1.5.21/init.c	2013-04-03 04:10:37.500636414 +0900
++++ mutt-1.5.21/init.c	2013-04-03 19:03:37.736298221 +0900
 @@ -52,6 +52,8 @@
  #include <sys/wait.h>
  #include <sys/time.h>
@@ -18,7 +18,7 @@ diff -Narup mutt-1.5.21.orig/init.c mutt-1.5.21/init.c
  int mutt_command_complete (char *buffer, size_t len, int pos, int numtabs)
  {
    char *pt = buffer;
-@@ -2578,6 +2581,87 @@ int mutt_command_complete (char *buffer,
+@@ -2578,6 +2581,95 @@ int mutt_command_complete (char *buffer,
  
      strncpy (pt, Completed, buffer + len - pt - spaces);
    }
@@ -35,18 +35,26 @@ diff -Narup mutt-1.5.21.orig/init.c mutt-1.5.21/init.c
 +
 +          DIR *dir;
 +          struct dirent *dp;
-+          char dpath[LONG_STRING]={0};
 +          if(User_typed[0]!=0){
++              char dpath[LONG_STRING]={0};
 +              if(User_typed[0]=='~'){
 +                  snprintf(dpath, sizeof(dpath),"%s%s",getenv("HOME"),(User_typed+1));
 +              }else{
 +                  snprintf(dpath, sizeof(dpath),"%s",User_typed);
 +              }
-+              for(num=0;dpath[num]!=0 && num<sizeof(dpath);num++);
-+              if(num>1 && dpath[num-1]=='/')
-+                  dpath[num-1]=0;
-+
 +              strfcpy (User_typed, dpath, sizeof (User_typed));
++
++              for(num=0;dpath[num]!=0 && num<sizeof(dpath);num++);
++              if(num>1){
++                  if(dpath[num-1]=='.'){
++                      if(dpath[num-2]=='/'){
++                          dpath[num-2]=0;
++                      }else if(dpath[num-2]=='.' && dpath[num-3]=='/'){
++                          dpath[num-3]=0;
++                      }
++                  }else if(dpath[num-1]=='/')
++                      dpath[num-1]=0;
++              }
 +
 +              if((dir=opendir(dpath))==NULL){
 +                  for(num=sizeof(dpath);dpath[num]!='/' && num>0;num--);
@@ -106,7 +114,7 @@ diff -Narup mutt-1.5.21.orig/init.c mutt-1.5.21/init.c
    else
      return 0;
  
-@@ -3022,6 +3106,7 @@ void mutt_init (int skip_sys_rc, LIST *c
+@@ -3022,6 +3114,7 @@ void mutt_init (int skip_sys_rc, LIST *c
    mutt_set_charset (Charset);
    
    Matches = safe_calloc (Matches_listsize, sizeof (char *));
