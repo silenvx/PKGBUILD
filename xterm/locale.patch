@@ -1,7 +1,7 @@
-diff -Narup xterm-291.orig/util.c xterm-291/util.c
---- xterm-291.orig/util.c	2013-03-01 08:43:31.116066402 +0900
-+++ xterm-291/util.c	2013-03-01 08:46:53.071417531 +0900
-@@ -4316,67 +4316,6 @@ decode_keyboard_type(XtermWidget xw, XTE
+diff -Narup xterm-296.orig/util.c xterm-296/util.c
+--- xterm-296.orig/util.c	2013-09-17 16:38:44.997546933 +0900
++++ xterm-296/util.c	2013-09-17 16:43:16.636584187 +0900
+@@ -4344,67 +4344,6 @@ decode_keyboard_type(XtermWidget xw, XTE
  }
  
  #if OPT_WIDE_CHARS
@@ -69,7 +69,7 @@ diff -Narup xterm-291.orig/util.c xterm-291/util.c
  
  void
  decode_wcwidth(XtermWidget xw)
-@@ -4388,8 +4327,7 @@ decode_wcwidth(XtermWidget xw)
+@@ -4416,8 +4355,7 @@ decode_wcwidth(XtermWidget xw)
      switch (mode) {
      default:
  #if defined(HAVE_WCHAR_H) && defined(HAVE_WCWIDTH)

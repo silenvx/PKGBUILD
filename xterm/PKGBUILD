@@ -1,9 +1,9 @@
-# $Id: PKGBUILD 169622 2012-10-24 19:19:13Z andyrtr $
+# $Id: PKGBUILD 189924 2013-07-11 14:40:14Z andyrtr $
 # Maintainer: Jan de Groot <jgc@archlinux.org>
 # Contributor: Alexander Baldeck <alexander@archlinux.org>
 
 pkgname=xterm
-pkgver=291
+pkgver=296
 pkgrel=1
 pkgdesc="X Terminal Emulator"
 arch=('i686' 'x86_64')
@@ -13,13 +13,13 @@ depends=('libxft' 'libxaw' 'ncurses' 'xorg-luit' 'xbitmaps' 'libutempter')
 source=(ftp://invisible-island.net/${pkgname}/${pkgname}-${pkgver}.tgz
         LICENSE
         locale.patch)
-md5sums=('9925cd564c84746442e640f0e32f0493'
+md5sums=('63d498b14a9d45ae79d3fd3124c72a17'
          '10ecc3f8ee91e3189863a172f68282d2'
-         '4ebbc778e3a249d7ee0e54fff3e0f846')
+         '914ad0f9ae857ff8c67554d48091e612')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
-  patch -p1 -i ../locale.patch
+  patch -p1 -i "${srcdir}/locale.patch"
   ./configure --prefix=/usr \
       --libdir=/etc \
       --mandir=/usr/share/man \
