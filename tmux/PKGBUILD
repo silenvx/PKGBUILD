@@ -15,18 +15,21 @@ source=(http://jaist.dl.sourceforge.net/project/$pkgname/$pkgname/$pkgname-$pkgv
         LICENSE
         borders.patch
         utf8_width.patch
-        copy_cursor_width.patch)
+        copy_cursor_width.patch
+        tmux-fbterm.patch)
 md5sums=('b9477de2fe660244cbc6e6d7e668ea0e'
          '71601bc37fa44e4395580b321963018e'
          'ebf01f342a3007f9515e50ddf4c883cf'
          'ed195ffa2573ed8a503f20f823a47006'
-         '046828137746521e8bf88ca493b90ca2')
+         '046828137746521e8bf88ca493b90ca2'
+         '54a6339ecc1ff954be205dc13c3bb33b')
 
 build() {
 	cd "$srcdir/$pkgname-$pkgver"
     patch -p1 -i $srcdir/borders.patch
     patch -p1 -i $srcdir/utf8_width.patch
     patch -p1 -i $srcdir/copy_cursor_width.patch
+    patch -p0 -i $srcdir/tmux-fbterm.patch
 	./configure --prefix=/usr
 	make
 }

@@ -1,30 +1,30 @@
-# $Id: PKGBUILD 172942 2012-12-07 18:25:31Z ibiru $
-# Maintainer: Jan de Groot <jgc@archlinux.org>
+# $Id: PKGBUILD 190126 2013-07-16 03:23:42Z eric $
+# Maintainer:
 # Contributor: xduugu
 # Contributor: Elis Hughes <elishughes@googlemail.com>
 
 pkgname=rtmpdump
-pkgver=20121203
-pkgrel=1
+pkgver=20121230
+pkgrel=2
 pkgdesc="A tool to download rtmp streams"
 arch=('i686' 'x86_64')
 url="http://rtmpdump.mplayerhq.hu/"
 license=('GPL2' 'LGPL2.1')
 depends=('openssl')
-options=(!makeflags)
+options=('!makeflags')
 #git://git.ffmpeg.org/rtmpdump 
-source=(ftp://ftp.archlinux.org/other/$pkgname/$pkgname-$pkgver.tar.xz
+source=(ftp://ftp.archlinux.org/other/packages/$pkgname/$pkgname-git-$pkgver.tar.xz
         nico_live.patch)
-sha256sums=('e5d9f7411bddd5a12be677f2a285c38100313db2b3b1f8d2a709d46e03741409'
+sha256sums=('2612ccbc041281c90d1fa59d20aec783fa3ef29de952323d8d89699fc3d5c4d2'
             '77d4e82939c7036b84431c9a635469fdd8fb4e8bc2ce738a8770fe532e426ff2')
 
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    patch -p1 -i "${srcdir}/nico_live.patch" || return 1
-    make
+  cd $pkgname-$pkgver
+  patch -p1 -i $srcdir/nico_live.patch || return 1
+  make
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make prefix=/usr mandir=/usr/share/man DESTDIR="$pkgdir" install
+  cd $pkgname-$pkgver
+  make prefix=/usr sbindir=/usr/bin mandir=/usr/share/man DESTDIR="$pkgdir" install
 }
