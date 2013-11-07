@@ -12,6 +12,7 @@
 !/xterm
 !/rtmpdump
 !/mutt
+!/unzip
 
 /*/src/*
 /*/pkg/*
