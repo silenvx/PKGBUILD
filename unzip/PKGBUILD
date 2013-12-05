@@ -1,7 +1,4 @@
-# $Id: PKGBUILD 150453 2012-02-17 23:22:29Z allan $
-# Maintainer:
-# Contributor: Douglas Soares de Andrade <douglas@archlinux.org>
-# Contributor: Robson Peixoto
+# Maintainer: silenvx <czvziwzx at gmail.com>
 
 pkgname=unzip
 pkgver=6.0

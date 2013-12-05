@@ -1,6 +1,4 @@
-# $Id: PKGBUILD 81466 2012-12-21 12:36:51Z fyan $
-# Maintainer: Felix Yan <felixonmars@gmail.com>
-# Contributor: noonov <noonov@gmail.com>
+# Maintainer: silenvx <czvziwzx at gmail.com>
 
 pkgname=fbterm
 pkgver=1.7.0

@@ -1,7 +1,4 @@
-# $Id: PKGBUILD 190126 2013-07-16 03:23:42Z eric $
-# Maintainer:
-# Contributor: xduugu
-# Contributor: Elis Hughes <elishughes@googlemail.com>
+# Maintainer: silenvx <czvziwzx at gmail.com>
 
 pkgname=rtmpdump
 pkgver=20121230

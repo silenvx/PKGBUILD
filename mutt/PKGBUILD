@@ -1,6 +1,4 @@
-# $Id: PKGBUILD 196759 2013-10-18 06:54:09Z bisson $
-# Contributor: tobias [tobias [at] archlinux.org]
-# Maintainer: Gaetan Bisson <bisson@archlinux.org>
+# Contributor: silenvx <czvziwzx at gmail.com>
 
 pkgname=mutt
 pkgver=1.5.22
