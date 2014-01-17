@@ -23,9 +23,13 @@ md5sums=('b9477de2fe660244cbc6e6d7e668ea0e'
 
 build() {
 	cd "$srcdir/$pkgname-$pkgver"
+# borderを書き換える
     patch -p1 -i $srcdir/borders.patch
+# 文字幅の取得にwcwidch()を使うようにする
     patch -p1 -i $srcdir/utf8_width.patch
+# コピーモードの時、文字幅に合わせてカーソルを移動させる
     patch -p1 -i $srcdir/copy_cursor_width.patch
+# fbterm上でも256colorで表示できるようにする
     patch -p0 -i $srcdir/tmux-fbterm.patch
 	./configure --prefix=/usr
 	make

@@ -19,6 +19,8 @@ install=install
 
 build() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
+# :sourceで補完を使えるようにする
+# http://d.hatena.ne.jp/silenvx/20130403/1364932873
     patch -p1 -i "${srcdir}/source_complete.patch"
 	./configure \
 		--prefix=/usr \
