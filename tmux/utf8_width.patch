@@ -1,7 +1,7 @@
-diff -Narup tmux-1.7.orig/server.c tmux-1.7/server.c
---- tmux-1.7.orig/server.c	2012-10-22 08:33:58.919711591 +0900
-+++ tmux-1.7/server.c	2012-10-22 08:34:23.434132192 +0900
-@@ -151,7 +151,6 @@ server_start(int lockfd, char *lockfile)
+diff -Narup tmux-1.9.orig/server.c tmux-1.9/server.c
+--- tmux-1.9.orig/server.c	2014-02-22 12:55:58.150383831 +0900
++++ tmux-1.9/server.c	2014-02-22 12:56:54.782673235 +0900
+@@ -149,7 +149,6 @@ server_start(int lockfd, char *lockfile)
  	ARRAY_INIT(&global_buffers);
  	mode_key_init_trees();
  	key_bindings_init();
@@ -9,10 +9,10 @@ diff -Narup tmux-1.7.orig/server.c tmux-1.7/server.c
  
  	start_time = time(NULL);
  	log_debug("socket path %s", socket_path);
-diff -Narup tmux-1.7.orig/tmux.h tmux-1.7/tmux.h
---- tmux-1.7.orig/tmux.h	2012-10-22 08:33:58.859700755 +0900
-+++ tmux-1.7/tmux.h	2012-10-22 08:34:23.437466127 +0900
-@@ -2280,7 +2280,6 @@ void		 session_group_synchronize1(struct
+diff -Narup tmux-1.9.orig/tmux.h tmux-1.9/tmux.h
+--- tmux-1.9.orig/tmux.h	2014-02-22 12:55:58.157050375 +0900
++++ tmux-1.9/tmux.h	2014-02-22 12:57:10.409051851 +0900
+@@ -2312,7 +2312,6 @@ void		 session_group_synchronize1(struct
  void		 session_renumber_windows(struct session *);
  
  /* utf8.c */
@@ -20,10 +20,10 @@ diff -Narup tmux-1.7.orig/tmux.h tmux-1.7/tmux.h
  int	utf8_open(struct utf8_data *, u_char);
  int	utf8_append(struct utf8_data *, u_char);
  u_int	utf8_combine(const struct utf8_data *);
-diff -Narup tmux-1.7.orig/utf8.c tmux-1.7/utf8.c
---- tmux-1.7.orig/utf8.c	2012-10-22 08:33:58.826361398 +0900
-+++ tmux-1.7/utf8.c	2012-10-22 08:42:07.684522024 +0900
-@@ -19,185 +19,11 @@
+diff -Narup tmux-1.9.orig/utf8.c tmux-1.9/utf8.c
+--- tmux-1.9.orig/utf8.c	2014-02-22 12:55:58.160383647 +0900
++++ tmux-1.9/utf8.c	2014-02-22 12:56:10.346825674 +0900
+@@ -19,184 +19,11 @@
  #include <sys/types.h>
  
  #include <string.h>
@@ -183,7 +183,6 @@ diff -Narup tmux-1.7.orig/utf8.c tmux-1.7/utf8.c
 -	{ 0x30000, 0x3fffd, 2, NULL, NULL },
 -	{ 0x00711, 0x00711, 0, NULL, NULL },
 -	{ 0x0fe00, 0x0fe0f, 0, NULL, NULL },
--	{ 0x01160, 0x011ff, 0, NULL, NULL },
 -	{ 0x0180b, 0x0180d, 0, NULL, NULL },
 -	{ 0x10a3f, 0x10a3f, 0, NULL, NULL },
 -	{ 0x00981, 0x00981, 0, NULL, NULL },
@@ -211,7 +210,7 @@ diff -Narup tmux-1.7.orig/utf8.c tmux-1.7/utf8.c
  u_int	utf8_combine(const struct utf8_data *);
  u_int	utf8_width(const struct utf8_data *);
  
-@@ -247,49 +73,6 @@ utf8_append(struct utf8_data *utf8data,
+@@ -246,49 +73,6 @@ utf8_append(struct utf8_data *utf8data,
  	return (0);
  }
  
@@ -261,7 +260,7 @@ diff -Narup tmux-1.7.orig/utf8.c tmux-1.7/utf8.c
  /* Combine UTF-8 into 32-bit Unicode. */
  u_int
  utf8_combine(const struct utf8_data *utf8data)
-@@ -337,19 +120,8 @@ utf8_split2(u_int uc, u_char *ptr)
+@@ -336,19 +120,8 @@ utf8_split2(u_int uc, u_char *ptr)
  u_int
  utf8_width(const struct utf8_data *utf8data)
  {
@@ -280,8 +279,8 @@ diff -Narup tmux-1.7.orig/utf8.c tmux-1.7/utf8.c
 -			return (item->width);
 -	}
 -	return (1);
-+	signed int width;
-+	setlocale(LC_CTYPE,"");
-+	width = wcwidth(utf8_combine(utf8data));
-+	return (width <= -1 ? 1 : width);
++    signed int width;
++    setlocale(LC_CTYPE,"");
++    width = wcwidth(utf8_combine(utf8data));
++    return (width <= -1 ? 1 : width);
  }

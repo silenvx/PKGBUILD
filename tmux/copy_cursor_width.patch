@@ -33,7 +33,7 @@ diff -Narup tmux-1.8.orig/window-copy.c tmux-1.8/window-copy.c
  	} else {
 -		window_copy_update_cursor(wp, data->cx - 1, data->cy);
 +		window_copy_update_cursor(wp, window_copy_position_fix_x(wp, window_copy_position_fix_x(wp, data->cx) - 1), data->cy);
- 		if (window_copy_update_selection(wp))
+ 		if (window_copy_update_selection(wp, 1))
  			window_copy_redraw_lines(wp, data->cy, 1);
  	}
 @@ -1637,7 +1638,9 @@ void
@@ -56,11 +56,11 @@ diff -Narup tmux-1.8.orig/window-copy.c tmux-1.8/window-copy.c
 +		gc = grid_peek_cell(gd, xx, screen_hsize(data->backing) + data->cy - data->oy);
 +		xx+=gc->xstate >> 4;
 +		window_copy_update_cursor(wp, xx, data->cy);
- 		if (window_copy_update_selection(wp))
+ 		if (window_copy_update_selection(wp, 1))
  			window_copy_redraw_lines(wp, data->cy, 1);
  	}
 @@ -2047,3 +2053,22 @@ window_copy_rectangle_toggle(struct wind
- 	window_copy_update_selection(wp);
+ 	window_copy_update_selection(wp, 1);
  	window_copy_redraw_screen(wp);
  }
 +
