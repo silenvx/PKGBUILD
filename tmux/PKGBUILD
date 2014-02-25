@@ -15,7 +15,6 @@ source=(http://jaist.dl.sourceforge.net/project/$pkgname/$pkgname/$pkgname-$pkgv
         use_acs.patch)
 md5sums=('5f5ed0f03a666279264da45b60075600'
          '71601bc37fa44e4395580b321963018e'
-         'bb8a93b6b34c5509147f2e45f12b6914'
          'dc715d340cd5aa50929d500da6088371'
          '56d1ab216a5395eb865f6fa7dd490459'
          'd648aa8de6360540d2396d4d1657f95e')
