@@ -1,0 +1,35 @@
+diff -Narup tmux-1.9.orig/tty-acs.c tmux-1.9/tty-acs.c
+--- tmux-1.9.orig/tty-acs.c	2014-02-26 08:03:30.793179187 +0900
++++ tmux-1.9/tty-acs.c	2014-02-26 08:04:46.101823171 +0900
+@@ -81,17 +81,7 @@ tty_acs_get(struct tty *tty, u_char ch)
+ 	struct tty_acs_entry *entry;
+ 
+ 	/* If not a UTF-8 terminal, use the ACS set. */
+-	if (!(tty->flags & TTY_UTF8)) {
+-		if (tty->term->acs[ch][0] == '\0')
+-			return (NULL);
+-		return (&tty->term->acs[ch][0]);
+-	}
+-
+-	/* Otherwise look up the UTF-8 translation. */
+-	entry = bsearch(&ch,
+-	    tty_acs_table, nitems(tty_acs_table), sizeof tty_acs_table[0],
+-	    tty_acs_cmp);
+-	if (entry == NULL)
++	if (tty->term->acs[ch][0] == '\0')
+ 		return (NULL);
+-	return (entry->string);
++	return (&tty->term->acs[ch][0]);
+ }
+diff -Narup tmux-1.9.orig/tty.c tmux-1.9/tty.c
+--- tmux-1.9.orig/tty.c	2014-02-26 08:03:30.789845914 +0900
++++ tmux-1.9/tty.c	2014-02-26 08:05:35.244271589 +0900
+@@ -50,7 +50,7 @@ void	tty_repeat_space(struct tty *, u_in
+ void	tty_cell(struct tty *, const struct grid_cell *);
+ 
+ #define tty_use_acs(tty) \
+-	(tty_term_has((tty)->term, TTYC_ACSC) && !((tty)->flags & TTY_UTF8))
++	(tty_term_has((tty)->term, TTYC_ACSC))
+ 
+ #define tty_pane_full_width(tty, ctx) \
+ 	((ctx)->xoff == 0 && screen_size_x((ctx)->wp->screen) >= (tty)->sx)
