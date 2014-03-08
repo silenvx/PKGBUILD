@@ -1,7 +1,7 @@
 # Maintainer: silenvx <czvziwzx at gmail.com>
 
 pkgname=xterm
-pkgver=302
+pkgver=303
 pkgrel=1
 pkgdesc="X Terminal Emulator"
 arch=('i686' 'x86_64')
@@ -11,7 +11,7 @@ depends=('libxft' 'libxaw' 'ncurses' 'xorg-luit' 'xbitmaps' 'libutempter')
 source=(ftp://invisible-island.net/${pkgname}/${pkgname}-${pkgver}.tgz{,.asc}
         LICENSE
         locale.patch)
-md5sums=('494e2f3988d22fe7266410c862042250'
+md5sums=('48f6d49b2b6b6933d501d767cbed9254'
          'SKIP'
          '10ecc3f8ee91e3189863a172f68282d2'
          '914ad0f9ae857ff8c67554d48091e612')
