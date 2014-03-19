@@ -11,11 +11,17 @@ depends=('gcc-libs' 'fontconfig')
 optdepends=('libx86: for VESA video card support')
 install=fbterm.install
 source=("http://fbterm.googlecode.com/files/${pkgname}-${pkgver}.tar.gz"
-        "fbterm-1.7-term.patch")
+        "fbterm-1.7-term.patch"
+        "config_colors.patch")
+
+md5sums=('c36bae75a450df0519b4527cccaf7572'
+         '2bbf2e07f19c7b1a39e71d26ea762e9d'
+         '105dd584155506ebaf8a33ca4c9ee0a9')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver%.?}"
   patch -p1 -i "${srcdir}/fbterm-1.7-term.patch"
+  patch -p1 -i "${srcdir}/config_colors.patch"
 
   ./configure --prefix=/usr
   make
@@ -28,6 +34,3 @@ package() {
 
   make DESTDIR="${pkgdir}" TERMINFO="${pkgdir}/usr/share/terminfo" install
 }
-
-md5sums=('c36bae75a450df0519b4527cccaf7572'
-         '2bbf2e07f19c7b1a39e71d26ea762e9d')
