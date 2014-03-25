@@ -21,6 +21,8 @@ md5sums=('c36bae75a450df0519b4527cccaf7572'
 build() {
   cd "${srcdir}/${pkgname}-${pkgver%.?}"
   patch -p1 -i "${srcdir}/fbterm-1.7-term.patch"
+
+# http://d.hatena.ne.jp/silenvx/20140319/1395233169
   patch -p1 -i "${srcdir}/config_colors.patch"
 
   ./configure --prefix=/usr
