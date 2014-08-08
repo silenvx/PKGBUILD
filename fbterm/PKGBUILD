@@ -2,13 +2,15 @@
 
 pkgname=fbterm
 pkgver=1.7.0
-pkgrel=5
+pkgrel=6
 pkgdesc="A fast terminal emulator for linux with frame buffer device or VESA video card"
 arch=('armv6h' 'i686' 'x86_64')
 url="http://code.google.com/p/fbterm/"
 license=('GPL2')
+makedepends=('gpm')
 depends=('gcc-libs' 'fontconfig')
-optdepends=('libx86: for VESA video card support')
+optdepends=('libx86: for VESA video card support'
+            'gpm: for mouse support')
 install=fbterm.install
 source=("http://fbterm.googlecode.com/files/${pkgname}-${pkgver}.tar.gz"
         "fbterm-1.7-term.patch"
@@ -25,7 +27,7 @@ build() {
 # http://d.hatena.ne.jp/silenvx/20140319/1395233169
   patch -p1 -i "${srcdir}/config_colors.patch"
 
-  ./configure --prefix=/usr
+  ./configure --prefix=/usr --enable-gpm
   make
 }
 
