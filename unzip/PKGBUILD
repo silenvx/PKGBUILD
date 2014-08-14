@@ -15,7 +15,7 @@ md5sums=('62b490407489521db863b523a7f86375'
 
 build() {
   cd ${srcdir}/${pkgname}${pkgver/./}
-
+# https://bugs.archlinux.org/task/15256
   patch -Np1 -i ${srcdir}/unzip60-alt-iconv-utf8.patch
 
   # set CFLAGS -- from Debian

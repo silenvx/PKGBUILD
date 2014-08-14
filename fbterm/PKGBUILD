@@ -22,6 +22,7 @@ md5sums=('c36bae75a450df0519b4527cccaf7572'
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver%.?}"
+# http://code.google.com/p/fbterm/issues/attachmentText?id=48&aid=480002000&name=fbterm-1.7-term.patch
   patch -p1 -i "${srcdir}/fbterm-1.7-term.patch"
 
 # http://d.hatena.ne.jp/silenvx/20140319/1395233169

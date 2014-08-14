@@ -17,6 +17,7 @@ sha256sums=('2612ccbc041281c90d1fa59d20aec783fa3ef29de952323d8d89699fc3d5c4d2'
 
 build() {
   cd $pkgname-$pkgver
+# https://github.com/taonico/rtmpdump-nico-live
   patch -p1 -i $srcdir/nico_live.patch || return 1
   make
 }

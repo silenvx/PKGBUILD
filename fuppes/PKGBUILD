@@ -41,9 +41,12 @@ build()
 {
   cd "${srcdir}/${pkgname}-${pkgver}"
 
+# http://d.hatena.ne.jp/silenvx/20121114/1352872828
   patch -p1 -i "${srcdir}/fix_includes.diff"
   patch -p1 -i "${srcdir}/fix_namespace.diff"
   patch -p1 -i "${srcdir}/fix_libmetadata_libavformat.so.diff"
+
+# https://aur.archlinux.org/packages/fuppes-svn/
   patch -Np0 -i "${srcdir}/fix_regexp_crash.diff"
 
   autoreconf -vfi

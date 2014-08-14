@@ -18,6 +18,7 @@ md5sums=('6d494f7a31ce579aac0e7b71e8b7d68f'
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
+# http://d.hatena.ne.jp/silenvx/20121015/1350233551
   patch -p1 -i "${srcdir}/locale.patch"
   ./configure --prefix=/usr \
       --libdir=/etc \
