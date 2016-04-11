@@ -6,14 +6,13 @@
 
 !/fbterm
 !/fuppes
-/mozc-ut
-/mplayer
 !/sonydb
 !/tmux
 !/xterm
 !/rtmpdump
 !/mutt
 !/unzip
+!/utf-8-cjk
 
 /*/src/*
 /*/pkg/*

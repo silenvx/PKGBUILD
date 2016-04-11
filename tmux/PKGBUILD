@@ -12,24 +12,24 @@ source=(http://downloads.sourceforge.net/tmux/tmux-${pkgver/_/}.tar.gz
         LICENSE
         utf8_width.patch
         copy_cursor_width.patch
-        use_acs.patch)
+        borders.patch)
 md5sums=('b07601711f96f1d260b390513b509a2d'
          '71601bc37fa44e4395580b321963018e'
          'dc715d340cd5aa50929d500da6088371'
          '56d1ab216a5395eb865f6fa7dd490459'
-         'd648aa8de6360540d2396d4d1657f95e')
+         'bb8a93b6b34c5509147f2e45f12b6914')
 
 build() {
 	cd "$srcdir/$pkgname-${pkgver/_/}"
 ## borderを書き換える
-#    patch -p1 -i $srcdir/borders.patch
+    patch -p1 -i $srcdir/borders.patch
 
 # XXX:http://emonkak.hatenablog.com/entry/2011/12/30/131055
 # XXX:http://waki-memo.hatenablog.com/entry/2013/12/21/000127
 # borders.patchよりもこっちの方がいいのかもしれない
 # 環境によってはborders.patchと見た目は変わらないが
 # ある環境だと繋がった罫線になってくれる
-    patch -p1 -i $srcdir/use_acs.patch
+#    patch -p1 -i $srcdir/use_acs.patch
 
 # 文字幅の取得にwcwidch()を使うようにする
     patch -p1 -i $srcdir/utf8_width.patch

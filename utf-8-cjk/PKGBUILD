@@ -1,0 +1,29 @@
+# Maintainer: silenvx <czvziwzx at gmail.com>
+
+pkgname=utf-8-cjk
+pkgver=20150210
+pkgrel=1
+pkgdesc="UTF-8 CJK"
+arch=('i686' 'x86_64')
+license=('GPL' 'LGPL')
+# glibc v2.23 (utf8_gen.py unicode_utils.py)
+makedepends=('python' 'git')
+source=('http://www.unicode.org/Public/UNIDATA/UnicodeData.txt'
+        'http://www.unicode.org/Public/UNIDATA/EastAsianWidth.txt'
+        'utf8_gen.py'
+        'unicode_utils.py')
+build() {
+  cd "${srcdir}"
+  python3 -B utf8_gen.py UnicodeData.txt EastAsianWidth.txt
+  mv UTF-8 UTF-8-CJK
+  gzip UTF-8-CJK
+}
+
+package() {
+  cd "${srcdir}"
+  install -Dm644 UTF-8-CJK.gz "${pkgdir}/usr/share/i18n/charmaps/UTF-8-CJK.gz"
+}
+md5sums=('3a83069e69e2a9101dc4749593cd3268'
+         'e4782d8f5ea275085b68bb0914a1599b'
+         'b44b6a982bdecb3efd8e403102f6e4fb'
+         '4ccd74b52ea11176901e59a15e64418f')
